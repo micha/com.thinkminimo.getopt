@@ -31,9 +31,11 @@ Quickstart
 ----------
 
 Try doing <tt>ant -projecthelp</tt> to see how to build the jar file, or
-just copy it into your project.
+just copy the java source into your project and compile it that way. Just
+remember to include the gnu-getopt.jar file in there if you do it that way.
 
-This is from the Main.java file included in the repo here:
+This is the Main.java file included in the repo to give an idea of how to
+use the class:
 
     package com.thinkminimo.getopt;
 
