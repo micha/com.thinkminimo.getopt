@@ -1,52 +1,60 @@
-JTemplate
-=========
+com.thinkminimo.GetOpt
+======================
 
-JTemplate is a simple java project skeleton. Use it to start out new java
-projects without making a big deal out of it. There are no dependencies other
-than [java][] and [ant][], and there is no framework or IDE needed. Good for
-if you don't use Eclipse or Netbeans or whatever.
+Getopt is a simplified commandline parsing class for java. Here are the
+features it has:
 
-[java]:       http://sun.java.com/      "Java"
-[ant]:        http://ant.apache.org/    "ant"
++ Really simple setup and use. Minimum number of lines of code to get it
+  to do useful things.
+
++ Parses long options, either with a mandatory argument or as a flag with
+  no arguments allowed. No support for short options or optional arguments,
+  though.
+
++ Takes care of printing out the options usage screen. You provide a
+  description for each option and it will print out a nicely formatted
+  usage guide if the user does the built-in --help option.
+
++ Can optionally keep track of options in a configuration file. It can
+  save its state to the file on exit and then load the configuration from
+  it the next time the application runs, with no extra code to write.
+
++ Option values can be interpreted as a boolean flag or as a string by
+  accessing them via the <tt>getOpt(String)</tt> or <tt>getFlag(String)</tt>
+  methods.
+
++ Acts like a HashMap in that you can pass it around and different parts
+  of the application can have access to the configuration via a simple
+  <tt>obj.getOpt("optname")</tt> or <tt>obj.getFlag("flagname")</tt>.
 
 Quickstart
 ----------
 
-1.  Edit the _default.properties_ file to your liking.  Make sure you don't have
-    whitespace after values.
+Try doing <tt>ant -projecthelp</tt> to see how to build the jar file, or
+just copy it into your project.
 
-2.  Run 'ant init'.  This deletes .git and makes you a /src tree with a 
-    Main class stub.
+This is from the Main.java file included in the repo here:
 
-3.  You're cooking!
+        package com.thinkminimo.getopt;
 
-Ant targets you might use from here on out: 
+        import java.io.File;
 
-+ 'all' or 'dist'
-+ 'clean'
-+ 'jar'
-+ 'javadoc'
+        class Main {
+          public static void main(String[] argv) {
+            GetOpt o = new GetOpt("myapp", argv, new File(".golfconfig"));
 
-Directories
------------
-    
-+ __docs:__ Project documentation. API javadocs will be written to docs/api/ 
-  directory. You can include anything you want here (documentation for 
-  dependencies, etc).  
+            o.addOpt("foo", "Foo is the option that will make all your dreams come true. All you really have to do is believe in it. You look very nice today. OK. I understand. Well I'll be back later for that crack I loaned you.");
 
-+ __lib:__ Jar files to be incorporated into the distribution jar file.
+            o.addFlag("bar", "Bar is a flag that can be true (i.e. if you specify it on the command line) or false (i.e. if you don't).");
 
-+ __resources:__ Resources to be included in the distribution jar file.  They 
-  will be added to the jar with a path relative to this directory, i.e., 
-  resources/foo/bar.jpg will be accessed in java as "foo/bar.jpg".
+            o.go();
 
-+ __src:__ Java source files go here.
+            if (o.getFlag("help")) {
+              System.out.println("\nUsage: myapp [OPTIONS] arg arg\n");
+              o.printUsage(1);
+            } else {
+              System.out.println("The value of 'foo' is '" + o.getOpt("foo") + "'.");
+            }
+          }
+        }
 
-Files
------
-
-+ __default.properties__ Project-specific preferences for the build process.
-
-+ __build.properties__ User preferences for the build process.
-
-+ __<i>projectname</i>-start.sh__ Application launcher wrapper script.
