@@ -10,10 +10,6 @@ class Main {
 
     o.addFlag("bar", "Bar is a flag that can be true (i.e. if you specify it on the command line) or false (i.e. if you don't).");
 
-    System.out.println("command line nonoption arguments are:");
-    for (String s : o.getArgv())
-      System.out.println("  > "+s);
-
     o.go();
 
     if (o.getFlag("help")) {
@@ -22,5 +18,9 @@ class Main {
     } else {
       System.out.println("The value of 'foo' is '" + o.getOpt("foo") + "'.");
     }
+
+    System.out.println("command line nonoption arguments are:");
+    for (String s : o.getArgv())
+      System.out.println("  > "+s);
   }
 }

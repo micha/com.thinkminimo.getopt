@@ -12,8 +12,8 @@ public class GetOpt {
 
   private String                  mAppname    = "";
   private String[]                mArgv       = null;
-  private ArrayList<String>       mNotOpts    = null;
   private File                    mFile       = null;
+  private ArrayList<String>       mNotOpts    = null;
 
   public GetOpt(String[] argv) {
     this("getopt", argv);
@@ -30,11 +30,7 @@ public class GetOpt {
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
-        try {
-          save();
-        } catch (IOException e) {
-          // ....
-        }
+        save();
       }
     });
   }
@@ -44,35 +40,38 @@ public class GetOpt {
     return this;
   }
 
-  private void load() throws IOException {
+  private void load() {
     if (mFile == null)
       return;
 
-    BufferedReader in = new BufferedReader(new FileReader(mFile));
-    String line;
-    for (LongOpt l : mLongOpts)
-      if ((line = in.readLine()) != null && 
-          l.getHasArg() != LongOpt.NO_ARGUMENT)
-        setOpt(l.getName(), line);
-    in.close();
+    try {
+      BufferedReader in = new BufferedReader(new FileReader(mFile));
+      String line;
+      for (LongOpt l : mLongOpts)
+        if ((line = in.readLine()) != null && 
+            l.getHasArg() != LongOpt.NO_ARGUMENT)
+          setOpt(l.getName(), line);
+      in.close();
+    } catch (Exception e) {
+      System.err.printf("can't load configuration: %s: %s\n",
+          mFile.getAbsolutePath(), e.getMessage());
+    }
   }
 
-  private void save() throws IOException {
+  private void save() {
     if (mFile == null)
       return;
 
-    PrintWriter out = new PrintWriter(mFile);
-    for (LongOpt l : mLongOpts)
-      out.println(getOpt(l.getName()));
-    out.close();
+    try {
+      PrintWriter out = new PrintWriter(mFile);
+      for (LongOpt l : mLongOpts)
+        out.println(getOpt(l.getName()));
+      out.close();
+    } catch (Exception e) {}
   }
 
   public GetOpt go() {
-    try {
-      load();
-    } catch (IOException e) {
-      // ...
-    }
+    load();
     LongOpt[] l = mLongOpts.toArray(new LongOpt[mLongOpts.size()]);
     gnu.getopt.Getopt g = new gnu.getopt.Getopt(mAppname, mArgv, "", l);
     int c;
