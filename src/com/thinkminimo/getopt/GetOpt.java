@@ -12,6 +12,7 @@ public class GetOpt {
 
   private String                  mAppname    = "";
   private String[]                mArgv       = null;
+  private ArrayList<String>       mNotOpts    = null;
   private File                    mFile       = null;
 
   public GetOpt(String[] argv) {
@@ -19,13 +20,8 @@ public class GetOpt {
   }
 
   public GetOpt(String name, String[] argv) {
-    this(name, argv, null);
-  }
-
-  public GetOpt(String name, String[] argv, File file) {
     mAppname = name;
     mArgv    = argv;
-    mFile    = file;
     
     addFlag("help", "Print this help info and exit.");
 
@@ -41,6 +37,11 @@ public class GetOpt {
         }
       }
     });
+  }
+
+  public GetOpt setFile(File file) {
+    mFile = file;
+    return this;
   }
 
   private void load() throws IOException {
@@ -100,6 +101,24 @@ public class GetOpt {
   public GetOpt setOpt(String opt, String val) {
     mOpts.put(opt, val);
     return this;
+  }
+
+  public ArrayList<String> getArgv() {
+    if (mNotOpts == null) {
+      mNotOpts = new ArrayList<String>();
+      LongOpt[] l = mLongOpts.toArray(new LongOpt[mLongOpts.size()]);
+      gnu.getopt.Getopt g = new gnu.getopt.Getopt(mAppname, mArgv, "", l);
+      int c;
+      while ((c = g.getopt()) != -1) {
+        switch (c) {
+          case '?':
+            System.exit(1);
+        }
+      }
+      for (int i=g.getOptind(); i<mArgv.length; i++)
+        mNotOpts.add(mArgv[i]);
+    }
+    return mNotOpts;
   }
 
   public boolean getFlag(String opt) {
