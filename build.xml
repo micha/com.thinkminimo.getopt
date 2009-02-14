@@ -33,8 +33,6 @@
   <property name="src.home"         value="${basedir}/src"/>
   <property name="lib.home"         value="${basedir}/lib"/>
   <property name="resources.home"   value="${basedir}/resources"/>
-  <property name="ant-contrib.home" value="${basedir}/ant/contrib"/>
-  <property name="ant-scripts.home" value="${basedir}/ant/scripts"/>
 
   <property name="jarfile.dist"     value="${dist.home}/${app.fullname}.jar"/>
   <property name="zipfile.dist"     value="${dist.home}/${app.fullname}.zip"/>
@@ -45,20 +43,6 @@
   <property name="compile.mainclass"    value="${app.base}.Main"/>
   <property name="compile.source"    value="${app.compile.source}"/>
   <property name="compile.target"    value="${app.compile.target}"/>
-
-  <!-- include ant-contrib tasks -->
-  <taskdef resource="net/sf/antcontrib/antcontrib.properties">
-    <classpath>
-      <pathelement location="${ant-contrib.home}/ant-contrib.jar"/>
-    </classpath>
-  </taskdef>
-
-  <!-- set regex properties -->
-  <propertyregex property="vendor.namespacedir"
-    input="${vendor.namespace}"
-    regexp="\."
-    replace="/"
-    global="true" />
 
   <!-- detect java version -->
   <available property="jdk1.3+"         classname="java.lang.StrictMath"/>
@@ -74,24 +58,6 @@
   <!-- the rest of this file is target definitions -->
 
   <target name="all" depends="jar" description="Same as 'dist'."/>
-
-  <target name="init" description="Initial project configuration.">
-    <mkdir  dir="${lib.home}"/>
-    <exec executable="${ant-scripts.home}/nukegit"/>
-    <mkdir dir="${src.home}/${vendor.namespacedir}/${app.name}"/>
-<echo file="${src.home}/${vendor.namespacedir}/${app.name}/Main.java"
-  append="no">package ${vendor.namespace}.${app.name};
-class Main {
-  public static void main(String[] args) {
-    System.out.println("${app.name} says hi!");
-  }
-}
-</echo>
-<echo file="${startscript.dist}" append="no">#\!/usr/bin/env bash
-java -jar ${jarfile.dist} "$@"
-</echo>
-    <chmod file="${startscript.dist}" perm="755"/>
-  </target>
 
   <target name="clean" 
     description="Remove compiled project, javadocs, and jar files.">
