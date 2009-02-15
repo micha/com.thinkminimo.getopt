@@ -127,6 +127,7 @@ public class GetOpt {
     while ((c = g.getopt()) != -1) {
       switch (c) {
         case '?':
+        case ':':
           printUsage();
           throw new Exception();
         case 1:
