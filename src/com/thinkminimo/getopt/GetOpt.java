@@ -11,6 +11,7 @@ public class GetOpt {
 
   private ArrayList<String>       mNotOpts      = new ArrayList<String>();
   private ArrayList<String>       mNotOptDescs  = new ArrayList<String>();
+
   private ArrayList<String>       mNotOptExtra  = new ArrayList<String>();
 
   private HashMap<String, String> mOpts         = new HashMap<String, String>();
@@ -190,8 +191,11 @@ public class GetOpt {
 
   public void showConfig() {
     for (LongOpt l : mLongOpts)
-      if (l.getHasArg() != LongOpt.NO_ARGUMENT)
-        System.out.printf("%15s => '%s'\n", l.getName(), getOpt(l.getName()));
+      if (l.getHasArg() != LongOpt.NO_ARGUMENT || getOpt(l.getName()) != null)
+        System.out.printf("%15s '%s'\n", "--"+l.getName(), 
+            l.getHasArg() == LongOpt.NO_ARGUMENT 
+            ? Boolean.valueOf(getFlag(l.getName())).toString()
+            : getOpt(l.getName()));
     System.exit(0);
   }
 
