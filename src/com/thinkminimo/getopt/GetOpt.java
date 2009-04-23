@@ -210,7 +210,7 @@ public class GetOpt {
         usage += " <"+s+">";
 
     if (mVarArg != null)
-      usage += " <"+mVarArg+"...>";
+      usage += " ["+mVarArg+"]";
 
     System.out.println(usage);
 
