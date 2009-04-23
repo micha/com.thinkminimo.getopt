@@ -147,7 +147,8 @@ public class GetOpt {
     }
     for (int i=g.getOptind(); i<mArgvIn.length; i++) {
       String name;
-      if ((name = mNotOpts.get(i-g.getOptind())) != null) {
+      if (mNotOpts.size() > i-g.getOptind() 
+          && (name = mNotOpts.get(i-g.getOptind())) != null) {
         setOpt(mNotOpts.get(i-g.getOptind()), mArgvIn[i]);
       } else {
         if (mVarArg == null) {
