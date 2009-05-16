@@ -42,7 +42,7 @@ public class GetOpt {
 
     mLongOpts.add(
         new LongOpt("showconfig", LongOpt.NO_ARGUMENT,  null, SHOWCONFIG_OPT));
-    mDescs.add("Print the saved configuration for this application and exit.");
+    mDescs.add("Print the default configuration for this application and exit.");
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
       public void run() {
@@ -210,20 +210,24 @@ public class GetOpt {
   public void showConfig() {
     int namelen = 0;
 
-    for (LongOpt l : mLongOpts)
+    for (LongOpt l : mLongOpts) {
+      if (l.getVal() == SECTION_OPT) continue;
       namelen = Math.max(l.getName().length(), namelen);
+    }
 
-    for (LongOpt l : mLongOpts)
+    for (LongOpt l : mLongOpts) {
+      if (l.getVal() == SECTION_OPT) continue;
       if (l.getHasArg() != LongOpt.NO_ARGUMENT || getOpt(l.getName()) != null)
         System.out.printf("%"+(namelen+4)+"s '%s'\n", "--"+l.getName(), 
             l.getHasArg() == LongOpt.NO_ARGUMENT 
             ? Boolean.valueOf(getFlag(l.getName())).toString()
             : getOpt(l.getName()));
+    }
     System.exit(0);
   }
 
   public void printUsage() {
-    String usage = "Usage: java -jar "+mAppname+".jar";
+    String usage = "java -jar "+mAppname+".jar";
     
     if (mLongOpts.size() > 0)
       usage += " [OPTIONS]";
@@ -235,12 +239,14 @@ public class GetOpt {
     if (mVarArg != null)
       usage += " ["+mVarArg+"]";
 
+    System.out.println("USAGE");
+    System.out.println("=====\n");
     System.out.println(usage);
 
     if (mNotOpts.size() > 0) {
       System.out.print("\n");
-      System.out.println("ARGUMENTS:");
-      System.out.print("\n");
+      System.out.println("ARGUMENTS");
+      System.out.println("=========\n");
 
       for (int i = 0; i < mNotOpts.size(); i++) {
         String        name    = mNotOpts.get(i);
@@ -262,7 +268,8 @@ public class GetOpt {
     }
 
     if (mLongOpts.size() > 0) {
-      System.out.println("OPTIONS:");
+      System.out.println("OPTIONS");
+      System.out.println("=======");
       System.out.print("\n");
 
       for (int i = 0; i < mLongOpts.size(); i++) {
@@ -279,8 +286,12 @@ public class GetOpt {
           arg = " [arg]";
 
         if (flag == SECTION_OPT) {
-          System.out.printf("  %s\n\n", name.toUpperCase());
-          para(desc, 69, "    ");
+          System.out.printf("  %s\n", name.toUpperCase());
+          System.out.print("  ");
+          for (int j=0; j<name.length(); j++)
+            System.out.print("-");
+          System.out.print("\n\n");
+          para(desc, 70, "  ");
           System.out.printf("\n");
         } else {
           System.out.printf("    --%s%s\n", name, arg);
