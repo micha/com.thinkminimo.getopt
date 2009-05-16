@@ -23,6 +23,12 @@ public class GetOpt {
   private String                  mVarArg       = null;
   private String                  mVarArgDesc   = null;
 
+  private static final int        LONG_OPT      = 1;
+  private static final int        FLAG_OPT      = 2;
+  private static final int        SHOWCONFIG_OPT= 3;
+  private static final int        HELP_OPT      = 4;
+  private static final int        SECTION_OPT   = 5;
+
   public GetOpt(String[] argv) {
     this("getopt", argv);
   }
@@ -31,10 +37,11 @@ public class GetOpt {
     mAppname = name;
     mArgvIn  = argv;
 
-    mLongOpts.add(new LongOpt("help", LongOpt.NO_ARGUMENT,  null, 4));
+    mLongOpts.add(new LongOpt("help", LongOpt.NO_ARGUMENT,  null, HELP_OPT));
     mDescs.add("Print this help info and exit.");
 
-    mLongOpts.add(new LongOpt("showconfig", LongOpt.NO_ARGUMENT,  null, 3));
+    mLongOpts.add(
+        new LongOpt("showconfig", LongOpt.NO_ARGUMENT,  null, SHOWCONFIG_OPT));
     mDescs.add("Print the saved configuration for this application and exit.");
 
     Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -50,7 +57,14 @@ public class GetOpt {
 
   public GetOpt addOpt(String lng, String desc) {
     mLongOpts.add(
-        new LongOpt(lng, LongOpt.REQUIRED_ARGUMENT,  null, 1));
+        new LongOpt(lng, LongOpt.REQUIRED_ARGUMENT,  null, LONG_OPT));
+    mDescs.add(desc == null ? "" : desc);
+    return this;
+  }
+
+  public GetOpt addSection(String lng, String desc) {
+    mLongOpts.add(
+        new LongOpt(lng, LongOpt.REQUIRED_ARGUMENT,  null, 5));
     mDescs.add(desc == null ? "" : desc);
     return this;
   }
@@ -60,7 +74,7 @@ public class GetOpt {
   }
 
   public GetOpt addFlag(String lng, String desc) {
-    mLongOpts.add(new LongOpt(lng, LongOpt.NO_ARGUMENT,  null, 2));
+    mLongOpts.add(new LongOpt(lng, LongOpt.NO_ARGUMENT,  null, FLAG_OPT));
     mDescs.add(desc == null ? "" : desc);
     return this;
   }
@@ -131,18 +145,21 @@ public class GetOpt {
         case ':':
           printUsage();
           throw new Exception();
-        case 1:
+        case LONG_OPT:
           mOpts.put(mLongOpts.get(g.getLongind()).getName(), g.getOptarg());
           break;
-        case 2:
+        case FLAG_OPT:
           mOpts.put(mLongOpts.get(g.getLongind()).getName(), "true");
           break;
-        case 3:
+        case SHOWCONFIG_OPT:
           showConfig();
           break;
-        case 4:
+        case HELP_OPT:
           printUsage();
           System.exit(1);
+          break;
+        case SECTION_OPT:
+          break;
       }
     }
     for (int i=g.getOptind(); i<mArgvIn.length; i++) {
@@ -191,9 +208,14 @@ public class GetOpt {
   }
 
   public void showConfig() {
+    int namelen = 0;
+
+    for (LongOpt l : mLongOpts)
+      namelen = Math.max(l.getName().length(), namelen);
+
     for (LongOpt l : mLongOpts)
       if (l.getHasArg() != LongOpt.NO_ARGUMENT || getOpt(l.getName()) != null)
-        System.out.printf("%15s '%s'\n", "--"+l.getName(), 
+        System.out.printf("%"+(namelen+4)+"s '%s'\n", "--"+l.getName(), 
             l.getHasArg() == LongOpt.NO_ARGUMENT 
             ? Boolean.valueOf(getFlag(l.getName())).toString()
             : getOpt(l.getName()));
@@ -256,9 +278,15 @@ public class GetOpt {
         else if (harg == LongOpt.OPTIONAL_ARGUMENT)
           arg = " [arg]";
 
-        System.out.printf("    --%s%s\n", name, arg);
-        para(desc, 65, "        ");
-        System.out.printf("\n");
+        if (flag == SECTION_OPT) {
+          System.out.printf("  %s\n\n", name.toUpperCase());
+          para(desc, 69, "    ");
+          System.out.printf("\n");
+        } else {
+          System.out.printf("    --%s%s\n", name, arg);
+          para(desc, 65, "        ");
+          System.out.printf("\n");
+        }
       }
     }
   }
