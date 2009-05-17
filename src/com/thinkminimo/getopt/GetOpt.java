@@ -12,6 +12,10 @@ public class GetOpt {
   private ArrayList<String>       mNotOpts      = new ArrayList<String>();
   private ArrayList<String>       mNotOptDescs  = new ArrayList<String>();
 
+  private ArrayList<String>       mExamples     = new ArrayList<String>();
+  private ArrayList<String>       mExampleTitles= new ArrayList<String>();
+  private ArrayList<String>       mExampleDescs = new ArrayList<String>();
+
   private ArrayList<String>       mNotOptExtra  = new ArrayList<String>();
 
   private HashMap<String, String> mOpts         = new HashMap<String, String>();
@@ -66,6 +70,17 @@ public class GetOpt {
     mLongOpts.add(
         new LongOpt(lng, LongOpt.REQUIRED_ARGUMENT,  null, 5));
     mDescs.add(desc == null ? "" : desc);
+    return this;
+  }
+
+  public GetOpt addExample(String title, String lng) {
+    return addExample(title, lng, null);
+  }
+
+  public GetOpt addExample(String title, String lng, String desc) {
+    mExamples.add(lng);
+    mExampleTitles.add(title);
+    mExampleDescs.add(desc == null ? "" : desc);
     return this;
   }
 
@@ -252,7 +267,7 @@ public class GetOpt {
         String        name    = mNotOpts.get(i);
         String        desc    = mNotOptDescs.get(i);
 
-        System.out.printf("    %s\n", name);
+        System.out.printf("    <%s>\n", name);
         para(desc, 65, "        ");
         System.out.printf("\n");
       }
@@ -261,7 +276,7 @@ public class GetOpt {
         String        name    = mVarArg;
         String        desc    = mVarArgDesc;
 
-        System.out.printf("    %s\n", name);
+        System.out.printf("    [%s]\n", name);
         para(desc, 65, "        ");
         System.out.printf("\n");
       }
@@ -298,6 +313,27 @@ public class GetOpt {
           para(desc, 65, "        ");
           System.out.printf("\n");
         }
+      }
+    }
+
+    if (mExamples.size() > 0) {
+      System.out.println("EXAMPLES");
+      System.out.println("========");
+      System.out.print("\n");
+
+      for (int i = 0; i < mExamples.size(); i++) {
+        String        example = mExamples.get(i);
+        String        title   = mExampleTitles.get(i);
+        String        desc    = mExampleDescs.get(i);
+
+        System.out.printf("  %s\n", title.toUpperCase());
+        System.out.print("  ");
+        for (int j=0; j<title.length(); j++)
+          System.out.print("-");
+        System.out.print("\n\n");
+        System.out.printf("    %s\n\n", example);
+        para(desc, 69, "    ");
+        System.out.printf("\n");
       }
     }
   }
